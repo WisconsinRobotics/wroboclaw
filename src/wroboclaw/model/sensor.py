@@ -1,6 +1,6 @@
 from abc import abstractmethod
 
-from .model import Device
+from .device import Device
 
 class PositionQueryable1D(Device):
     """Represents a device that supports querying for position on one degree of freedom."""

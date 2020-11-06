@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from typing import Optional
 
-from .model import Device
+from .device import Device
 
 class VelocityControllable1D(Device):
     """Represents a device that supports velocity control with one degree of freedom."""

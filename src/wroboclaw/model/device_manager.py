@@ -2,7 +2,7 @@ from abc import abstractmethod
 from contextlib import AbstractContextManager
 from typing import Generic, Optional, TypeVar
 
-from .model.model import Device
+from .device import Device
 
 D = TypeVar('D', bound=Device)
 

@@ -2,9 +2,9 @@ from typing import Callable, Tuple
 
 import rospy
 
-from ..model.actuator import *
-from ..model.sensor import *
-from ..util import BoundaryBehaviour, boundary_clamp
+from ...model.actuator import *
+from ...model.sensor import *
+from ...util.util import BoundaryBehaviour, boundary_clamp
 
 # motors
 
