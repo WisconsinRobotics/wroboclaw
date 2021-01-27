@@ -1,5 +1,4 @@
 from enum import Enum
-from types import Tuple
 
 class BoundaryBehaviour(Enum):
     """Describes some behaviour for clamping a value to an interval."""
