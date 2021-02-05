@@ -18,10 +18,13 @@ class Roboclaw(ABC):
 
 class RoboclawChainApi(ABC):
     @abstractmethod
-    def get_roboclaw(self, address: int, enc_left: bool = False, enc_right: bool = False) -> Roboclaw:
+    def get_roboclaw(self, address: int) -> Roboclaw:
         raise NotImplementedError('Abstract method!')
 
 class RoboclawChain(ABC):
     @abstractmethod
     def __enter__(self) -> RoboclawChainApi:
         raise NotImplementedError('Abstract method!')
+
+    def __exit__(self):
+        pass
