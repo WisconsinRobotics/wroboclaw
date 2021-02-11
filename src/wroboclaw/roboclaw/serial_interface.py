@@ -196,6 +196,6 @@ class RoboclawChainSerial(RoboclawChain):
         self._instance = RoboclawSerialApi(Serial(self.com_port, self.baud, timeout=self.timeout))
         return self._instance
 
-    def __exit__(self):
+    def __exit__(self, e_type, value, traceback):
         self._instance._close()
         self._instance = None

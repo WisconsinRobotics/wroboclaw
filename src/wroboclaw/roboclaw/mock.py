@@ -25,7 +25,7 @@ class RoboclawChainMock(RoboclawChain, RoboclawChainApi):
     def __enter__(self) -> RoboclawChainApi:
         return self
     
-    def __exit__(self):
+    def __exit__(self, e_type, value, traceback):
         for claw in self._claws.values():
             claw.write_speed(0, 0)
 

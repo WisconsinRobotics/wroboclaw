@@ -26,5 +26,5 @@ class RoboclawChain(ABC):
     def __enter__(self) -> RoboclawChainApi:
         raise NotImplementedError('Abstract method!')
 
-    def __exit__(self):
+    def __exit__(self, e_type, value, traceback):
         pass
