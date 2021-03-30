@@ -2,12 +2,15 @@ from collections import defaultdict
 from typing import DefaultDict, Optional, Tuple
 
 from ..util.mock import MockVelCtrl
+from ..util.util import BoundaryBehaviour
 from .model import Roboclaw, RoboclawChain, RoboclawChainApi        
+
+UINT32_BOUNDS = (0, (1 << 32) - 1)
 
 class RoboclawMock(Roboclaw):
     def __init__(self):
-        self._left = MockVelCtrl()
-        self._right = MockVelCtrl()
+        self._left = MockVelCtrl(UINT32_BOUNDS, BoundaryBehaviour.wrap)
+        self._right = MockVelCtrl(UINT32_BOUNDS, BoundaryBehaviour.wrap)
 
     def write_speed(self, spd_l: Optional[int] = None, spd_r: Optional[int] = None):
         if spd_l is not None:
