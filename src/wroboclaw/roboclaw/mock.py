@@ -22,8 +22,8 @@ class RoboclawMock(Roboclaw):
         return round(self._left.get_position()), round(self._right.get_position())
 
 class RoboclawChainMock(RoboclawChain, RoboclawChainApi):
-    def __init__(self, mock_warp: int = 1):
-        MockVelCtrl.TIME_WARP = mock_warp
+    def __init__(self, time_warp: int = 1):
+        MockVelCtrl.TIME_WARP = time_warp
         self._claws: DefaultDict[int, RoboclawMock] = defaultdict(RoboclawMock)
     
     def __enter__(self) -> RoboclawChainApi:
