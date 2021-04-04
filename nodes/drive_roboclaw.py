@@ -49,11 +49,12 @@ def main():
     baud = rospy.get_param('~baud', 115200)
     timeout = rospy.get_param('~timeout', 0.01)
     mock = rospy.get_param('~mock', False)
+    mock_warp = rospy.get_param('~time_warp', 1)
     claw_defs_dto = cast(Dict[str, Dict[str, Any]], rospy.get_param('~claws'))
 
     claw_defs = [ClawDef(name, dto) for name, dto in claw_defs_dto.items()]
 
-    with init_roboclaw(com_port, baud, timeout, mock) as claw_chain:
+    with init_roboclaw(com_port, baud, timeout, mock, mock_warp) as claw_chain:
         claws = [ClawInst(claw_def, claw_def.init_claw(claw_chain)) for claw_def in claw_defs]
 
         sleeper = rospy.Rate(30)
