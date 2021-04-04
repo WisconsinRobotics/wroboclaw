@@ -8,13 +8,14 @@ from .model import Roboclaw, RoboclawChain, RoboclawChainApi
 UINT32_BOUNDS = (0, (1 << 32) - 1)
 
 class RoboclawMock(Roboclaw):
-    def __init__(self):
+    def __init__(self, mock_warp: int = 1):
+        MockVelCtrl.TIME_WARP = mock_warp
         self._left = MockVelCtrl(UINT32_BOUNDS, BoundaryBehaviour.wrap)
         self._right = MockVelCtrl(UINT32_BOUNDS, BoundaryBehaviour.wrap)
 
     def write_speed(self, spd_l: Optional[int] = None, spd_r: Optional[int] = None):
         if spd_l is not None:
-            self._left.set_velocity(spd_l) # TODO: probably needs some tuning factor here
+            self._left.set_velocity(spd_l) # TODO: probably needs some tuning factor here; possibly corrected in fix for issue #1
         if spd_r is not None:
             self._right.set_velocity(spd_r)
 
