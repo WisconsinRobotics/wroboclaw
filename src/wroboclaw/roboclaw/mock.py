@@ -8,8 +8,7 @@ from .model import Roboclaw, RoboclawChain, RoboclawChainApi
 UINT32_BOUNDS = (0, (1 << 32) - 1)
 
 class RoboclawMock(Roboclaw):
-    def __init__(self, mock_warp: int = 1):
-        MockVelCtrl.TIME_WARP = mock_warp
+    def __init__(self):
         self._left = MockVelCtrl(UINT32_BOUNDS, BoundaryBehaviour.wrap)
         self._right = MockVelCtrl(UINT32_BOUNDS, BoundaryBehaviour.wrap)
 
@@ -23,7 +22,8 @@ class RoboclawMock(Roboclaw):
         return round(self._left.get_position()), round(self._right.get_position())
 
 class RoboclawChainMock(RoboclawChain, RoboclawChainApi):
-    def __init__(self):
+    def __init__(self, mock_warp: int = 1):
+        MockVelCtrl.TIME_WARP = mock_warp
         self._claws: DefaultDict[int, RoboclawMock] = defaultdict(RoboclawMock)
     
     def __enter__(self) -> RoboclawChainApi:
