@@ -17,7 +17,7 @@ class MockVelCtrl():
 
     def _update_pos(self):
         now = rospy.get_time()
-        self._current_pos += cast(int, self._current_vel / self.bounds[1]) * (now - self._last_update_time) * self._max_enc_speed
+        self._current_pos += int(self._current_vel / self.bounds[1]) * (now - self._last_update_time) * self._max_enc_speed
         if self.pos_bounds is not None:
             self._current_pos = boundary_clamp(self.pos_clamp, self._current_pos, *self.pos_bounds)
         self._last_update_time = now
