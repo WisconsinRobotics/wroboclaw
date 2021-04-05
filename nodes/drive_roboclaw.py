@@ -14,13 +14,25 @@ class ClawDef:
         self.name = name
         self.topic = dto.get('topic', f'~{name}')
         self.address: int = dto['address']
-        self.enc_l_enabled = dto.get('enc_left', False)
-        self.enc_r_enabled = dto.get('enc_right', False)
+        self.enc_l = dto.get('enc_left', None)
+        self.enc_r = dto.get('enc_right', None)
+
+    @staticmethod
+    def _get_enc_property(enc_dict: Dict[str, Any], key: str, default: Any):
+        return enc_dict.get(key, default) if enc_dict else default
 
     def init_claw(self, claw_chain: RoboclawChainApi) -> Roboclaw:
+        #Set the address of the Roboclaw
         claw = claw_chain.get_roboclaw(self.address)
-        claw.set_enc_left_enabled(self.enc_l_enabled)
-        claw.set_enc_right_enabled(self.enc_r_enabled)
+
+        #Set if either encoder is enabled
+        claw.set_enc_left_enabled(ClawDef._get_enc_property(self.enc_l, 'enabled', False))
+        claw.set_enc_right_enabled(ClawDef._get_enc_property(self.enc_r, 'enabled', False))
+
+        #Set the max speeds of the encoders
+        claw.set_enc_left_max_speed(ClawDef._get_enc_property(self.enc_l, 'max_speed', 1))
+        claw.set_enc_right_max_speed(ClawDef._get_enc_property(self.enc_r, 'max_speed', 1))
+
         return claw
 
 class ClawInst:
@@ -49,12 +61,11 @@ def main():
     baud = rospy.get_param('~baud', 115200)
     timeout = rospy.get_param('~timeout', 0.01)
     mock = rospy.get_param('~mock', False)
-    time_warp = rospy.get_param('~time_warp', 1)
     claw_defs_dto = cast(Dict[str, Dict[str, Any]], rospy.get_param('~claws'))
 
     claw_defs = [ClawDef(name, dto) for name, dto in claw_defs_dto.items()]
 
-    with init_roboclaw(com_port, baud, timeout, mock, time_warp) as claw_chain:
+    with init_roboclaw(com_port, baud, timeout, mock) as claw_chain:
         claws = [ClawInst(claw_def, claw_def.init_claw(claw_chain)) for claw_def in claw_defs]
 
         sleeper = rospy.Rate(30)
