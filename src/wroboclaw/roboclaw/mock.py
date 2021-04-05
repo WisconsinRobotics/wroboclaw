@@ -9,8 +9,14 @@ UINT32_BOUNDS = (0, (1 << 32) - 1)
 
 class RoboclawMock(Roboclaw):
     def __init__(self):
-        self._left = MockVelCtrl(UINT32_BOUNDS, BoundaryBehaviour.wrap)
-        self._right = MockVelCtrl(UINT32_BOUNDS, BoundaryBehaviour.wrap)
+        self._left = MockVelCtrl(UINT32_BOUNDS, BoundaryBehaviour.wrap, left_max_enc_speed)
+        self._right = MockVelCtrl(UINT32_BOUNDS, BoundaryBehaviour.wrap, right_max_enc_speed)
+
+    def set_enc_left_max_speed(self, max_enc_speed: int):
+        self._left.set_max_speed(max_enc_speed)
+
+    def set_enc_right_max_speed(self, max_enc_speed: int):
+        self._right.set_max_speed(max_enc_speed)
 
     def write_speed(self, spd_l: Optional[int] = None, spd_r: Optional[int] = None):
         if spd_l is not None:
@@ -22,8 +28,7 @@ class RoboclawMock(Roboclaw):
         return round(self._left.get_position()), round(self._right.get_position())
 
 class RoboclawChainMock(RoboclawChain, RoboclawChainApi):
-    def __init__(self, time_warp: int = 1):
-        MockVelCtrl.TIME_WARP = time_warp
+    def __init__(self):
         self._claws: DefaultDict[int, RoboclawMock] = defaultdict(RoboclawMock)
     
     def __enter__(self) -> RoboclawChainApi:
