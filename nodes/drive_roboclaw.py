@@ -32,7 +32,6 @@ class ClawDef:
         #Set the max speeds of the encoders
         claw.set_enc_left_max_speed(ClawDef._get_enc_property(self.enc_l, 'max_speed', 1))
         claw.set_enc_right_max_speed(ClawDef._get_enc_property(self.enc_r, 'max_speed', 1))
-        print(ClawDef._get_enc_property(self.enc_l, 'max_speed', 0))
 
         return claw
 

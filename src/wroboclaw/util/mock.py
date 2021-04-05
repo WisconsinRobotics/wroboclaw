@@ -25,7 +25,6 @@ class MockVelCtrl():
     def set_max_speed(self, max_speed: int):
         self._update_pos()
         self._max_enc_speed = max_speed
-        print(self._max_enc_speed)
 
     def set_velocity(self, vel: float):
         self._update_pos()
