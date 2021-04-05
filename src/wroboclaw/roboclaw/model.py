@@ -8,6 +8,12 @@ class Roboclaw(ABC):
     def set_enc_right_enabled(self, enabled: bool):
         pass
 
+    def set_enc_left_max_speed(self, max_enc_speed: int):
+        pass
+
+    def set_enc_right_max_speed(self, max_enc_speed: int):
+        pass
+
     @abstractmethod
     def write_speed(self, spd_l: Optional[int] = None, spd_r: Optional[int] = None):
         raise NotImplementedError('Abstract method!')
