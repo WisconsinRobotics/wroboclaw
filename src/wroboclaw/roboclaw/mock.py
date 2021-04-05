@@ -9,8 +9,8 @@ UINT32_BOUNDS = (0, (1 << 32) - 1)
 
 class RoboclawMock(Roboclaw):
     def __init__(self):
-        self._left = MockVelCtrl(UINT32_BOUNDS, BoundaryBehaviour.wrap, left_max_enc_speed)
-        self._right = MockVelCtrl(UINT32_BOUNDS, BoundaryBehaviour.wrap, right_max_enc_speed)
+        self._left = MockVelCtrl(UINT32_BOUNDS, BoundaryBehaviour.wrap)
+        self._right = MockVelCtrl(UINT32_BOUNDS, BoundaryBehaviour.wrap)
 
     def set_enc_left_max_speed(self, max_enc_speed: int):
         self._left.set_max_speed(max_enc_speed)
