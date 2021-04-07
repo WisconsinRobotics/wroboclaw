@@ -18,7 +18,7 @@ class ClawDef:
         enc_l = dto.get('enc_left', None)
         enc_r = dto.get('enc_right', None)
 
-        self.enc_r_enabled, self.enc_r_max_speed = (enc_r.get('enabled', False), enc_r.get('max_speed', 1)) if enc_r else (False, 1)
+        self.enc_l_enabled, self.enc_l_max_speed = (enc_l.get('enabled', False), enc_l.get('max_speed', 1)) if enc_l else (False, 1)
         self.enc_r_enabled, self.enc_r_max_speed = (enc_r.get('enabled', False), enc_r.get('max_speed', 1)) if enc_r else (False, 1)
 
     def init_claw(self, claw_chain: RoboclawChainApi) -> Roboclaw:
