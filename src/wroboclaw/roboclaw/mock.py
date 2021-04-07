@@ -6,7 +6,7 @@ from ..util.util import BoundaryBehaviour
 from .model import Roboclaw, RoboclawChain, RoboclawChainApi        
 
 UINT32_BOUNDS = (0, (1 << 32) - 1)
-INT16_MAX = (1<<15)-1
+INT16_MAX = (1 << 15) - 1
 
 class RoboclawMock(Roboclaw):
     def __init__(self):
@@ -25,7 +25,7 @@ class RoboclawMock(Roboclaw):
         if spd_l is not None:
             self._left.set_velocity(spd_l / INT16_MAX * self._left_max_speed)
         if spd_r is not None:
-            self._right.set_velocity(spd_r / INT16_MAX * self._left_max_speed)
+            self._right.set_velocity(spd_r / INT16_MAX * self._right_max_speed)
 
     def read_encs(self) -> Tuple[Optional[int], Optional[int]]:
         return round(self._left.get_position()), round(self._right.get_position())
