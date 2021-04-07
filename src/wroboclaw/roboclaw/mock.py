@@ -18,7 +18,7 @@ class RoboclawMock(Roboclaw):
     def set_enc_left_max_speed(self, max_speed: int):
         self._left_max_speed = max_speed
 
-    def set_enc_right_max_speed(self, max_enc_speed: int):
+    def set_enc_right_max_speed(self, max_speed: int):
         self._right_max_speed = max_speed
 
     def write_speed(self, spd_l: Optional[int] = None, spd_r: Optional[int] = None):
