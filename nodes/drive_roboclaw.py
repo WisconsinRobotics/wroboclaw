@@ -14,13 +14,25 @@ class ClawDef:
         self.name = name
         self.topic = dto.get('topic', f'~{name}')
         self.address: int = dto['address']
-        self.enc_l_enabled = dto.get('enc_left', False)
-        self.enc_r_enabled = dto.get('enc_right', False)
+
+        enc_l = dto.get('enc_left', None)
+        enc_r = dto.get('enc_right', None)
+
+        self.enc_l_enabled, self.enc_l_max_speed = (enc_l.get('enabled', False), enc_l.get('max_speed', 1)) if enc_l else (False, 1)
+        self.enc_r_enabled, self.enc_r_max_speed = (enc_r.get('enabled', False), enc_r.get('max_speed', 1)) if enc_r else (False, 1)
 
     def init_claw(self, claw_chain: RoboclawChainApi) -> Roboclaw:
+        #Set the address of the Roboclaw
         claw = claw_chain.get_roboclaw(self.address)
+
+        #Set if either encoder is enabled
         claw.set_enc_left_enabled(self.enc_l_enabled)
         claw.set_enc_right_enabled(self.enc_r_enabled)
+
+        #Set the max speeds of the encoders
+        claw.set_enc_left_max_speed(self.enc_l_max_speed)
+        claw.set_enc_right_max_speed(self.enc_r_max_speed)
+
         return claw
 
 class ClawInst:
