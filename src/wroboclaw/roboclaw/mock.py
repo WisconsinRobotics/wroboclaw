@@ -9,6 +9,8 @@ UINT32_BOUNDS = (0, (1 << 32) - 1)
 INT16_MAX = (1 << 15) - 1
 
 class RoboclawMock(Roboclaw):
+    """A mock Roboclaw that uses simulated motors to produce mock data."""
+    
     def __init__(self):
         self._left = MockVelCtrl(UINT32_BOUNDS, BoundaryBehaviour.wrap)
         self._left_max_speed = 1
@@ -31,6 +33,8 @@ class RoboclawMock(Roboclaw):
         return round(self._left.get_position()), round(self._right.get_position())
 
 class RoboclawChainMock(RoboclawChain, RoboclawChainApi):
+    """A mock Roboclaw chain that provides simulated Roboclaws."""
+    
     def __init__(self):
         self._claws: DefaultDict[int, RoboclawMock] = defaultdict(RoboclawMock)
     

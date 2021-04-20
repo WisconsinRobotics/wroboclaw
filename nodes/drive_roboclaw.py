@@ -10,7 +10,37 @@ from wroboclaw.roboclaw import init_roboclaw
 from wroboclaw.roboclaw.model import Roboclaw, RoboclawChainApi
 
 class ClawDef:
+    """A single Roboclaw definition."""
+    
     def __init__(self, name: str, dto: Dict[str, Any]):
+        """Parses a Roboclaw definition from a config dictionary.
+
+        Parameters
+        ----------
+        name : str
+            The name for the Roboclaw instance.
+        dto : Dict[str, Any]
+            A dictionary of parameters for the Roboclaw.
+            See "Other Parameters" below for more information.
+        
+        Other Parameters
+        ----------------
+        topic : str, optional
+            The namespace under which ROS topics for this Roboclaw are defined.
+            By default, uses the private namespace for the node.
+        address : int
+            The address for this Roboclaw.
+        enc_left.enabled : bool, optional
+            Whether the left motor should have encoder handling enabled or not. By default, False.
+        enc_left.max_speed : int, optional
+            The expected maximum speed, in encoder counts per second, for the left motor. By default, 1.
+            This should probably be changed if the left encoder is enabled.
+        enc_right.enabled : bool, optional
+            Whether the right motor should have encoder handling enabled or not. By default, False.
+        enc_right.max_speed : int, optional
+            The expected maximum speed, in encoder counts per second, for the right motor. By default, 1.
+            This should probably be changed if the right encoder is enabled.
+        """
         self.name = name
         self.topic = dto.get('topic', f'~{name}')
         self.address: int = dto['address']
@@ -22,6 +52,18 @@ class ClawDef:
         self.enc_r_enabled, self.enc_r_max_speed = (enc_r.get('enabled', False), enc_r.get('max_speed', 1)) if enc_r else (False, 1)
 
     def init_claw(self, claw_chain: RoboclawChainApi) -> Roboclaw:
+        """Initializes a Roboclaw instance as defined by this definition.
+
+        Parameters
+        ----------
+        claw_chain : RoboclawChainApi
+            The Roboclaw chain from which the Roboclaw instance should be extracted.
+
+        Returns
+        -------
+        Roboclaw
+            The newly-initialized Roboclaw instance.
+        """
         #Set the address of the Roboclaw
         claw = claw_chain.get_roboclaw(self.address)
 
@@ -36,7 +78,18 @@ class ClawDef:
         return claw
 
 class ClawInst:
+    """Represents a single Roboclaw."""
+    
     def __init__(self, claw_def: ClawDef, claw: Roboclaw):
+        """Constructs a Roboclaw wrapper for the given Roboclaw, creating ROS publishers and subscribers.
+
+        Parameters
+        ----------
+        claw_def : ClawDef
+            The Roboclaw definition for this Roboclaw.
+        claw : Roboclaw
+            The Roboclaw instance.
+        """
         self.claw_def = claw_def
         self.claw = claw
 
@@ -48,6 +101,7 @@ class ClawInst:
         self.enc_pub_r = rospy.Publisher(f'{self.claw_def.topic}/enc/right', UInt32, queue_size=10)
 
     def tick(self):
+        """Ticks publications for this Roboclaw instance."""
         enc_left, enc_right = self.claw.read_encs()
         if enc_left is not None:
             self.enc_pub_l.publish(UInt32(enc_left))
@@ -57,17 +111,21 @@ class ClawInst:
 def main():
     rospy.init_node('drive_roboclaw')
 
+    # collect ROS params
     com_port = cast(str, rospy.get_param('~com_port'))
     baud = rospy.get_param('~baud', 115200)
     timeout = rospy.get_param('~timeout', 0.01)
     mock = rospy.get_param('~mock', False)
     claw_defs_dto = cast(Dict[str, Dict[str, Any]], rospy.get_param('~claws'))
 
+    # parse out roboclaw definitions
     claw_defs = [ClawDef(name, dto) for name, dto in claw_defs_dto.items()]
 
+    # construct roboclaws
     with init_roboclaw(com_port, baud, timeout, mock) as claw_chain:
         claws = [ClawInst(claw_def, claw_def.init_claw(claw_chain)) for claw_def in claw_defs]
 
+        # main ROS loop
         sleeper = rospy.Rate(30)
         while not rospy.is_shutdown():
             for claw in claws:
