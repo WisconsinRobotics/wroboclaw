@@ -109,6 +109,39 @@ class ClawInst:
             self.enc_pub_r.publish(UInt32(enc_right))
 
 def main():
+    """A driver node for Roboclaws.
+
+    Each instance of this node corresponds to a single chain of
+    Roboclaws on a single UART serial port. Various ROS params
+    are used to configure this node, which are listed below.
+
+    Other Parameters
+    ----------------
+    com_port : str
+        The UART serial port to which the Roboclaw chain is
+        connected.
+    baud : int, optional
+        The baud rate for the serial port. Defaults to 115200.
+    timeout : float, optional
+        The timeout time, in seconds, for the serial port.
+        Defaults to 0.01 seconds, which is the timeout for
+        Roboclaw packet-serial instructions[1]_.
+    mock: bool, optional
+        Whether the Roboclaw should be run in mock mode or
+        not. Defaults to False.
+    claws: Dict[str, ClawDef]
+        A table of specifications for individual Roboclaws.
+        Each entry should consist of a name identifying the
+        Roboclaw mapped to a Roboclaw configuration object.
+
+    References
+    ----------
+    .. [1] https://downloads.basicmicro.com/docs/roboclaw_user_manual.pdf
+
+    See Also
+    --------
+    ClawDef : A specification for a single Roboclaw.
+    """
     rospy.init_node('drive_roboclaw')
 
     # collect ROS params
