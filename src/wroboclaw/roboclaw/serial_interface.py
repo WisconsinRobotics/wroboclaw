@@ -1,7 +1,7 @@
 from serial import Serial
 from struct import Struct
 from threading import Lock, Thread
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from ..util.checksum import crc16
 from ..util.watchdog import SimpleWatchdog
@@ -169,8 +169,6 @@ class RoboclawSerialInstance(Roboclaw):
     
     def read_encs(self) -> Tuple[Optional[int], Optional[int]]:
         with self._state_lock:
-            if self._enc_l is None or self._enc_r is None:
-                raise ValueError('No encoder data has been received!')
             return self._enc_l, self._enc_r
 
     def _tick(self) -> bool: # TODO serial invocations ignore errors; maybe handle them
@@ -242,6 +240,7 @@ class RoboclawSerialApi(RoboclawChainApi):
         """
         self._serial = serial
         self._claws: Dict[int, RoboclawSerialInstance] = dict()
+        self._claws_lock = Lock()
         self._alive_claws = 0
         self._alive = True
         self._alive_lock = Lock()
@@ -251,29 +250,36 @@ class RoboclawSerialApi(RoboclawChainApi):
     def _comms_loop(self):
         """The UART communications loop maintained in the comms thread."""
         while True:
-            if self._alive_claws <= 0:
-                with self._alive_lock:
-                    if not self._alive:
-                        self._serial.close()
-                        break
-            for claw in self._claws.values():
-                if not claw._tick():
-                    self._alive_claws -= 1
+            with self._claws_lock:
+                if self._alive_claws <= 0:
+                    with self._alive_lock:
+                        if not self._alive:
+                            self._serial.close()
+                            break
+                dead_claws: List[int] = []
+                for claw_addr, claw in self._claws.items():
+                    if not claw._tick():
+                        dead_claws.append(claw_addr)
+                        self._alive_claws -= 1
+                for claw_addr in dead_claws:
+                    del self._claws[claw_addr]
 
     def _close(self):
         """Kills all Roboclaw instances and termiantes communication with the Roboclaw chain."""
-        for claw in self._claws.values():
-            claw._kill()
+        with self._claws_lock:
+            for claw in self._claws.values():
+                claw._kill()
         with self._alive_lock:
             self._alive = False
         self._comms_thread.join()
 
     def get_roboclaw(self, address: int) -> Roboclaw:
-        claw = self._claws.get(address)
-        if claw is None:
-            claw = RoboclawSerialInstance(self._serial, address)
-            self._claws[address] = claw
-            self._alive_claws += 1
+        with self._claws_lock:
+            claw = self._claws.get(address)
+            if claw is None:
+                claw = RoboclawSerialInstance(self._serial, address)
+                self._claws[address] = claw
+                self._alive_claws += 1
         return claw
 
 class RoboclawChainSerial(RoboclawChain):
