@@ -1,3 +1,4 @@
+import rospy
 from .mock import RoboclawChainMock
 from .model import RoboclawChain
 from .serial_interface import RoboclawChainSerial
@@ -21,4 +22,5 @@ def init(com_port: str, baud: int, timeout: float = 0.01, mock: bool = False) ->
     RoboclawChain
         The newly-constructed Roboclaw chain instance.
     """
+    rospy.loginfo(f"Roboclaw initialization params:  {com_port} {baud} {timeout}")
     return RoboclawChainMock() if mock else RoboclawChainSerial(com_port, baud, timeout)

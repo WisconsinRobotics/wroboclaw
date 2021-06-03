@@ -1,3 +1,4 @@
+import rospy
 from serial import Serial
 from struct import Struct
 from threading import Lock, Thread
@@ -44,6 +45,7 @@ class SerialCommandHandler:
             A struct describing the format of the request parameters.
         """
         self._serial = serial
+        rospy.loginfo(f"Serial processed:  {serial}")
         self._header = STRUCT_HEADER.pack(address, opcode)
         self._header_csum = crc16(self._header)
         self._param_struct = param_struct
@@ -58,12 +60,14 @@ class SerialCommandHandler:
         bool
             Whether the request was successfully sent and acknowledged or not.
         """
+        rospy.loginfo
         data = self._param_struct.pack(*args)
         csum = crc16(data, initial=self._header_csum)
-        self._serial.write(self._header)
-        self._serial.write(data)
-        self._serial.write(STRUCT_CRC16.pack(csum))
+        rospy.loginfo(f"Write Status (Header):  {self._serial.write(self._header)}")
+        rospy.loginfo(f"Write Status (Data):  {self._serial.write(data)}")
+        rospy.loginfo(f"Write Status (CRC):  {self._serial.write(STRUCT_CRC16.pack(csum))}")
         res = self._serial.read(1)
+        rospy.loginfo(f"Read result:  {res}")
         return len(res) > 0 and res[0] == 0xFF
 
 class SerialRequestHandler:
@@ -89,6 +93,7 @@ class SerialRequestHandler:
             A struct describing the format of the response.
         """
         self._serial = serial
+        rospy.loginfo(f"Serial processed:  {serial}")
         self._header = STRUCT_HEADER.pack(address, opcode)
         self._header_csum = crc16(self._header)
         self._res_struct = res_struct
@@ -101,8 +106,9 @@ class SerialRequestHandler:
         Optional[Tuple]
             The results, or None if the request fails.
         """
-        self._serial.write(self._header)
+        rospy.loginfo(f"Write status (Header, SerialRequest):  {self._serial.write(self._header)}")
         data = self._serial.read(self._res_struct.size)
+        rospy.loginfo(f"Read data (SerialRequest):  {data}")
         if len(data) != self._res_struct.size:
             return None
         csum = crc16(data[:-2], initial=self._header_csum)
@@ -304,6 +310,7 @@ class RoboclawChainSerial(RoboclawChain):
 
     def __enter__(self) -> RoboclawChainApi:
         self._instance = RoboclawSerialApi(Serial(self.com_port, self.baud, timeout=self.timeout))
+        rospy.loginfo(f"Serial established {self._instance._serial}")
         return self._instance
 
     def __exit__(self, e_type, value, traceback):

@@ -102,6 +102,7 @@ class ClawInst:
 
     def tick(self):
         """Ticks publications for this Roboclaw instance."""
+        rospy.loginfo("ticking...")
         enc_left, enc_right = self.claw.read_encs()
         if enc_left is not None:
             self.enc_pub_l.publish(UInt32(enc_left))
@@ -153,6 +154,7 @@ def main():
 
     # parse out roboclaw definitions
     claw_defs = [ClawDef(name, dto) for name, dto in claw_defs_dto.items()]
+    rospy.loginfo(f"Initialized {len(claw_defs)} ClawDefs")
 
     # construct roboclaws
     with init_roboclaw(com_port, baud, timeout, mock) as claw_chain:
