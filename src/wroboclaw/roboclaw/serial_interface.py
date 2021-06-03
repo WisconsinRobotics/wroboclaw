@@ -60,7 +60,6 @@ class SerialCommandHandler:
         bool
             Whether the request was successfully sent and acknowledged or not.
         """
-        rospy.loginfo
         data = self._param_struct.pack(*args)
         csum = crc16(data, initial=self._header_csum)
         rospy.loginfo(f"Write Status (Header):  {self._serial.write(self._header)}")
