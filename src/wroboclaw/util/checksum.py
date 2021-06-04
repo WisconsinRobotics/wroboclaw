@@ -15,10 +15,12 @@ def crc16(*datas: Iterable[int], initial: int = 0) -> int:
     int
         The CRC-16 checksum of the input bytes.
     """
-    csum = initial ^ (datas << 8)
-    for bit in range(0, 8):
-        if (csum&0x8000)  == 0x8000:
-            csum = ((csum << 1) ^ 0x1021)
-        else:
-            csum = csum << 1
+    csum = initial
+    for data in datas:
+        csum = csum ^ (datas << 8)
+        for bit in range(0, 8):
+            if (csum&0x8000)  == 0x8000:
+                csum = ((csum << 1) ^ 0x1021)
+            else:
+                csum = csum << 1
     return csum
