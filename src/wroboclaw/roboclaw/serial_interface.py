@@ -1,4 +1,4 @@
-from serial import Serial
+from serial import Serial, SerialException
 from struct import Struct
 from threading import Lock, Thread
 from typing import Any, Dict, List, Optional, Tuple
@@ -58,13 +58,16 @@ class SerialCommandHandler:
         bool
             Whether the request was successfully sent and acknowledged or not.
         """
-        data = self._param_struct.pack(*args)
-        csum = crc16(data, initial=self._header_csum)
-        self._serial.write(self._header)
-        self._serial.write(data)
-        self._serial.write(STRUCT_CRC16.pack(csum))
-        res = self._serial.read(1)
-        return len(res) > 0 and res[0] == 0xFF
+        try:
+            data = self._param_struct.pack(*args)
+            csum = STRUCT_CRC16.pack(crc16(data, initial=self._header_csum) & 0xFFFF)
+            self._serial.write(self._header)
+            self._serial.write(data)
+            self._serial.write(csum)
+            res = self._serial.read(1)
+            return len(res) > 0 and res[0] == 0xFF
+        except SerialException:
+            return False
 
 class SerialRequestHandler:
     """Handles Roboclaw serial packet requests (() -> T).
@@ -101,13 +104,16 @@ class SerialRequestHandler:
         Optional[Tuple]
             The results, or None if the request fails.
         """
-        self._serial.write(self._header)
-        data = self._serial.read(self._res_struct.size)
-        if len(data) != self._res_struct.size:
+        try:
+            self._serial.write(self._header)
+            data = self._serial.read(self._res_struct.size)
+            if len(data) != self._res_struct.size:
+                return None
+            csum = crc16(data[:-2], initial=self._header_csum)
+            res = self._res_struct.unpack(data)
+            return res[:-1] if res[-1] == csum else None
+        except SerialException:
             return None
-        csum = crc16(data[:-2], initial=self._header_csum)
-        res = self._res_struct.unpack(data)
-        return res[:-1] if res[-1] == csum else None
 
 class RoboclawSerialInstance(Roboclaw):
     """Represents a single Roboclaw on a chain."""
@@ -190,15 +196,15 @@ class RoboclawSerialInstance(Roboclaw):
             if self._watchdog.check():
                 if self._sent_spd_l != self._target_spd_l:
                     if self._sent_spd_r != self._target_spd_r:
-                        self._cmd_mixed_duty.invoke(self._target_spd_l, self._target_spd_r)
-                        self._sent_spd_l = self._target_spd_l
-                        self._sent_spd_r = self._target_spd_r
+                        if self._cmd_mixed_duty.invoke(self._target_spd_l, self._target_spd_r):
+                            self._sent_spd_l = self._target_spd_l
+                            self._sent_spd_r = self._target_spd_r
                     else:
-                        self._cmd_m1_duty.invoke(self._target_spd_l)
-                        self._sent_spd_l = self._target_spd_l
+                        if self._cmd_m1_duty.invoke(self._target_spd_l):
+                            self._sent_spd_l = self._target_spd_l
                 elif self._sent_spd_r != self._target_spd_r:
-                    self._cmd_m2_duty.invoke(self._target_spd_r)
-                    self._sent_spd_r = self._target_spd_r
+                    if self._cmd_m2_duty.invoke(self._target_spd_r):
+                        self._sent_spd_r = self._target_spd_r
             else:
                 self._cmd_mixed_duty.invoke(0, 0)
             
