@@ -165,7 +165,7 @@ class RoboclawSerialInstance(Roboclaw):
                 self._enc_r_enabled = False
                 self._enc_r = None
 
-    def write_speed(self, spd_l: Optional[int], spd_r: Optional[int]):
+    def write_speed(self, spd_l: Optional[int] = None, spd_r: Optional[int] = None):
         with self._state_lock:
             if spd_l is not None:
                 self._target_spd_l = spd_l
