@@ -64,7 +64,7 @@ class SerialCommandHandler:
         csum = crc16(data, initial=self._header_csum)
         rospy.loginfo(f"Write Status (Header):  {self._serial.write(self._header)}")
         rospy.loginfo(f"Write Status (Data):  {self._serial.write(data)}")
-        rospy.loginfo(f"Write Status (CRC):  {self._serial.write(STRUCT_CRC16.pack(csum))}")
+        rospy.loginfo(f"Write Status (CRC):  {self._serial.write(STRUCT_CRC16.pack(csum & 0xFFFF))}")
         res = self._serial.read(1)
         rospy.loginfo(f"Read result:  {res}")
         return len(res) > 0 and res[0] == 0xFF
