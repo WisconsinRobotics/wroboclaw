@@ -60,7 +60,7 @@ class SerialCommandHandler:
         """
         try:
             data = self._param_struct.pack(*args)
-            csum = STRUCT_CRC16.pack(crc16(data, initial=self._header_csum) & 0xFFFF)
+            csum = STRUCT_CRC16.pack(crc16(data, initial=self._header_csum))
             self._serial.write(self._header)
             self._serial.write(data)
             self._serial.write(csum)
@@ -109,7 +109,7 @@ class SerialRequestHandler:
             data = self._serial.read(self._res_struct.size)
             if len(data) != self._res_struct.size:
                 return None
-            csum = crc16(data[:-2], initial=self._header_csum) & 0xFFFF
+            csum = crc16(data[:-2], initial=self._header_csum)
             res = self._res_struct.unpack(data)
             return res[:-1] if res[-1] == csum else None
         except SerialException:
