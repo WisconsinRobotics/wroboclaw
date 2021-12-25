@@ -24,4 +24,4 @@ def crc16(*datas: Iterable[int], initial: int = 0) -> int:
                     csum = (csum << 1) ^ 0x1021
                 else:
                     csum <<= 1
-    return csum
+    return csum & 0xFFFF
