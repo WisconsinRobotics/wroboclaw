@@ -3,7 +3,7 @@
 from typing import Any, Dict, cast
 
 import rospy
-from std_msgs.msg import Int16, UInt32
+from std_msgs.msg import Int16, UInt32, Float32
 
 from wroboclaw.msg import Int16Pair
 from wroboclaw.roboclaw import init_roboclaw
@@ -100,6 +100,9 @@ class ClawInst:
         self.enc_pub_l = rospy.Publisher(f'{self.claw_def.topic}/enc/left', UInt32, queue_size=10)
         self.enc_pub_r = rospy.Publisher(f'{self.claw_def.topic}/enc/right', UInt32, queue_size=10)
 
+        self.curr_pub_l = rospy.Publisher(f'{self.claw_def.topic}/curr/left', Float32, queue_size=10)
+        self.curr_pub_r = rospy.Publisher(f'{self.claw_def.topic}/curr/right', Float32, queue_size=10)
+
     def tick(self):
         """Ticks publications for this Roboclaw instance."""
         enc_left, enc_right = self.claw.read_encs()
@@ -107,6 +110,11 @@ class ClawInst:
             self.enc_pub_l.publish(UInt32(enc_left))
         if enc_right is not None:
             self.enc_pub_r.publish(UInt32(enc_right))
+
+        curr_left, curr_right = self.claw.read_currents()
+        if curr_left is not None:
+            self.curr_pub_l.publish(Float32(curr_left))
+            self.curr_pub_r.publish(Float32(curr_right))
 
 def main():
     """A driver node for Roboclaws.

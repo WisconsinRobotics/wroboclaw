@@ -20,6 +20,7 @@ STRUCT_INDIV_DUTY = param_struct('h')
 STRUCT_MIXED_DUTY = param_struct('hh')
 STRUCT_INDIV_ENC_CNT = res_struct('Ic')
 STRUCT_MIXED_ENC_CNT = res_struct('II')
+STRUCT_MIXED_CURRENT = res_struct('hh')
 
 class SerialCommandHandler:
     """Handles Roboclaw serial packet commands (T -> ()).
@@ -139,12 +140,16 @@ class RoboclawSerialInstance(Roboclaw):
         self._enc_r_enabled: bool = False
         self._enc_r: Optional[int] = None
 
+        self._curr_l: Optional[float] = None
+        self._curr_r: Optional[float] = None
+
         self._cmd_m1_duty = SerialCommandHandler(serial, address, 32, STRUCT_INDIV_DUTY)
         self._cmd_m2_duty = SerialCommandHandler(serial, address, 33, STRUCT_INDIV_DUTY)
         self._cmd_mixed_duty = SerialCommandHandler(serial, address, 34, STRUCT_MIXED_DUTY)
         self._req_get_m1_enc = SerialRequestHandler(serial, address, 16, STRUCT_INDIV_ENC_CNT)
         self._req_get_m2_enc = SerialRequestHandler(serial, address, 17, STRUCT_INDIV_ENC_CNT)
         self._req_get_mixed_enc = SerialRequestHandler(serial, address, 78, STRUCT_MIXED_ENC_CNT)
+        self._req_get_mixed_current = SerialRequestHandler(serial, address, 49, STRUCT_MIXED_CURRENT)
 
         self._alive = True
         self._state_lock = Lock()
@@ -176,6 +181,10 @@ class RoboclawSerialInstance(Roboclaw):
     def read_encs(self) -> Tuple[Optional[int], Optional[int]]:
         with self._state_lock:
             return self._enc_l, self._enc_r
+    
+    def read_currents(self) -> Tuple[Optional[float], Optional[float]]:
+        with self._state_lock:
+            return self._curr_l, self._curr_r
 
     def _tick(self) -> bool: # TODO serial invocations ignore errors; maybe handle them
         """Updates this Roboclaw's state, taking control of the UART port for the duration.
@@ -221,6 +230,12 @@ class RoboclawSerialInstance(Roboclaw):
                 res = self._req_get_m2_enc.invoke()
                 if res is not None:
                     self._enc_r, *_ = res
+
+            # read currents
+            res = self._req_get_mixed_current.invoke()
+            if res is not None:
+                self._curr_l, self._curr_r = (curr/100 for curr in res)
+
             return True
 
     def _kill(self):

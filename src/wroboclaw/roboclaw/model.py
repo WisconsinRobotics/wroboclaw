@@ -75,6 +75,19 @@ class Roboclaw(ABC):
         """
         raise NotImplementedError('Abstract method!')
 
+    @abstractmethod
+    def read_currents(self) -> Tuple[Optional[float], Optional[float]]:
+        """Queries the present currents (in Amps, resolution to the nearest 10mA).
+
+        May return None if the current has not been polled.
+
+        Returns
+        -------
+        Tuple[Optional[float], Optional[float]]
+            The current in the left and right motors for the RoboClaw
+        """
+        raise NotImplementedError('Abstract method!')
+
 class RoboclawChainApi(ABC):
     """Allows for extracting individual Roboclaw instances from a chain."""
     
