@@ -88,6 +88,32 @@ class Roboclaw(ABC):
         """
         raise NotImplementedError('Abstract method!')
 
+    @abstractmethod
+    def set_current_limits(self, left_limit: Optional[bool], right_limit: Optional[bool]) -> None:
+        """Sets software current limits for each channel of a Roboclaw.  Either parameter may be None if no current is specified.
+
+        Parameters
+        ----------
+        left_limit : (Optional[bool])
+            The current limit (in Amps) for the left channel
+        right_limit : (Optional[bool])
+            The current limit (in Amps) for the right channel
+        """
+        raise NotImplementedError('Abstract method!')
+
+    @abstractmethod
+    def get_over_current_status(self) -> Tuple[Optional[bool], Optional[bool]]:
+        """Gets whether each channel is over its current limit.
+
+        If the current limit for a channel is not set, then the corresponding status is None
+
+        Returns
+        -------
+        Tuple[Optional[bool], Optional[bool]]
+            The statuses of each channel being over its current limit
+        """
+        raise NotImplementedError('Abstract method!')
+
 class RoboclawChainApi(ABC):
     """Allows for extracting individual Roboclaw instances from a chain."""
     

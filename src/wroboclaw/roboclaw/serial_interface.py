@@ -142,6 +142,8 @@ class RoboclawSerialInstance(Roboclaw):
 
         self._curr_l: Optional[float] = None
         self._curr_r: Optional[float] = None
+        self._curr_lim_l: Optional[bool] = None
+        self._curr_lim_l: Optional[bool] = None
 
         self._cmd_m1_duty = SerialCommandHandler(serial, address, 32, STRUCT_INDIV_DUTY)
         self._cmd_m2_duty = SerialCommandHandler(serial, address, 33, STRUCT_INDIV_DUTY)
@@ -185,6 +187,16 @@ class RoboclawSerialInstance(Roboclaw):
     def read_currents(self) -> Tuple[Optional[float], Optional[float]]:
         with self._state_lock:
             return self._curr_l, self._curr_r
+
+    def set_current_limits(self, left_limit: Optional[bool], right_limit: Optional[bool]) -> None:
+        with self._state_lock:
+            self._curr_lim_l = left_limit
+            self._curr_lim_r = right_limit
+
+    def get_over_current_status(self) -> Tuple[Optional[bool], Optional[bool]]:
+        with self._state_lock:
+            return self._curr_l > self._curr_lim_l if self._curr_lim_l is not None else None, \
+                self._curr_r > self._curr_lim_r if self._curr_lim_r is not None else None
 
     def _tick(self) -> bool: # TODO serial invocations ignore errors; maybe handle them
         """Updates this Roboclaw's state, taking control of the UART port for the duration.
