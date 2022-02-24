@@ -127,7 +127,6 @@ class ClawInst:
             self.curr_pub_r.publish(Float32(curr_right))
 
         over_curr_lim_l, over_curr_lim_r = self.claw.get_over_current_status()
-        rospy.logerr(f'curr lim status: {over_curr_lim_l} {over_curr_lim_r}')
         if over_curr_lim_l is not None:
             self.over_curr_pub_l.publish(Bool(over_curr_lim_l))
         if over_curr_lim_r is not None:
