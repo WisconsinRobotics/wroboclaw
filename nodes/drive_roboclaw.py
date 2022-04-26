@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
+from re import S
 from typing import Any, Dict, cast
 
 import rospy
-from std_msgs.msg import Int16, UInt32
+from std_msgs.msg import Int16, UInt32, Float32, Bool
 
 from wroboclaw.msg import Int16Pair
 from wroboclaw.roboclaw import init_roboclaw
@@ -51,6 +52,9 @@ class ClawDef:
         self.enc_l_enabled, self.enc_l_max_speed = (enc_l.get('enabled', False), enc_l.get('max_speed', 1)) if enc_l else (False, 1)
         self.enc_r_enabled, self.enc_r_max_speed = (enc_r.get('enabled', False), enc_r.get('max_speed', 1)) if enc_r else (False, 1)
 
+        self.curr_lim_l = dto.get('current_limit_left', None)
+        self.curr_lim_r = dto.get('current_limit_right', None)
+
     def init_claw(self, claw_chain: RoboclawChainApi) -> Roboclaw:
         """Initializes a Roboclaw instance as defined by this definition.
 
@@ -74,6 +78,9 @@ class ClawDef:
         #Set the max speeds of the encoders
         claw.set_enc_left_max_speed(self.enc_l_max_speed)
         claw.set_enc_right_max_speed(self.enc_r_max_speed)
+
+        #Set the current limit of the motors
+        claw.set_current_limits(self.curr_lim_l, self.curr_lim_r)
 
         return claw
 
@@ -100,6 +107,12 @@ class ClawInst:
         self.enc_pub_l = rospy.Publisher(f'{self.claw_def.topic}/enc/left', UInt32, queue_size=10)
         self.enc_pub_r = rospy.Publisher(f'{self.claw_def.topic}/enc/right', UInt32, queue_size=10)
 
+        self.curr_pub_l = rospy.Publisher(f'{self.claw_def.topic}/curr/left', Float32, queue_size=10)
+        self.curr_pub_r = rospy.Publisher(f'{self.claw_def.topic}/curr/right', Float32, queue_size=10)
+
+        self.over_curr_pub_l = rospy.Publisher(f'{self.claw_def.topic}/curr/over_lim/left', Bool, queue_size=10)
+        self.over_curr_pub_r = rospy.Publisher(f'{self.claw_def.topic}/curr/over_lim/right', Bool, queue_size=10)
+
     def tick(self):
         """Ticks publications for this Roboclaw instance."""
         enc_left, enc_right = self.claw.read_encs()
@@ -107,6 +120,17 @@ class ClawInst:
             self.enc_pub_l.publish(UInt32(enc_left))
         if enc_right is not None:
             self.enc_pub_r.publish(UInt32(enc_right))
+
+        curr_left, curr_right = self.claw.read_currents()
+        if curr_left is not None:
+            self.curr_pub_l.publish(Float32(curr_left))
+            self.curr_pub_r.publish(Float32(curr_right))
+
+        over_curr_lim_l, over_curr_lim_r = self.claw.get_over_current_status()
+        if over_curr_lim_l is not None:
+            self.over_curr_pub_l.publish(Bool(over_curr_lim_l))
+        if over_curr_lim_r is not None:
+            self.over_curr_pub_r.publish(Bool(over_curr_lim_r))
 
 def main():
     """A driver node for Roboclaws.

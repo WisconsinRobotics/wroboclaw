@@ -32,6 +32,15 @@ class RoboclawMock(Roboclaw):
     def read_encs(self) -> Tuple[Optional[int], Optional[int]]:
         return round(self._left.get_position()), round(self._right.get_position())
 
+    def read_currents(self) -> Tuple[Optional[float], Optional[float]]:
+        return 0,0 # a controller that does not exist draws no current
+
+    def set_current_limits(self, left_limit: Optional[bool], right_limit: Optional[bool]) -> None:
+        pass # mock motors do not experience current draw
+
+    def get_over_current_status(self) -> Tuple[Optional[bool], Optional[bool]]:
+        return False, False # no current draw in mock motors
+
 class RoboclawChainMock(RoboclawChain, RoboclawChainApi):
     """A mock Roboclaw chain that provides simulated Roboclaws."""
     
