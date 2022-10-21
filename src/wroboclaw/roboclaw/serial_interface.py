@@ -162,6 +162,9 @@ class RoboclawSerialInstance(Roboclaw):
         self._req_get_mixed_enc = SerialRequestHandler(serial, address, 78, STRUCT_MIXED_ENC_CNT)
         self._req_get_mixed_current = SerialRequestHandler(serial, address, 49, STRUCT_MIXED_CURRENT)
 
+        self._address = address
+        self._watchdog_stop_engaged = False
+
         self._alive = True
         self._state_lock = Lock()
 
