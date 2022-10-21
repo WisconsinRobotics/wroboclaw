@@ -296,8 +296,7 @@ class RoboclawSerialApi(RoboclawChainApi):
         self._alive_claws = 0
         self._alive = True
         self._alive_lock = Lock()
-        self._comms_thread = Thread(
-            target=self._comms_loop, name=f'Roboclaw Comms: {serial.portstr}')
+        self._comms_thread = Thread(target=self._comms_loop, name=f'Roboclaw Comms: {serial.portstr}')
         self._comms_thread.start()
 
     def _comms_loop(self):
@@ -357,8 +356,7 @@ class RoboclawChainSerial(RoboclawChain):
         self._instance: Optional[RoboclawSerialApi] = None
 
     def __enter__(self) -> RoboclawChainApi:
-        self._instance = RoboclawSerialApi(
-            Serial(self.com_port, self.baud, timeout=self.timeout))
+        self._instance = RoboclawSerialApi(Serial(self.com_port, self.baud, timeout=self.timeout))
         return self._instance
 
     def __exit__(self, e_type, value, traceback):
