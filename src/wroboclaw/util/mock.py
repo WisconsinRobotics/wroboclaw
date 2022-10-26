@@ -19,7 +19,7 @@ class MockVelCtrl():
         """
         self.pos_bounds = pos_bounds
         self.pos_clamp = pos_clamp
-        self._current_pos = 0.0
+        self._current_pos = 500.0 #0.0
         self._current_vel = 0.0
         self._last_update_time = rospy.get_time()
 
