@@ -114,6 +114,15 @@ class Roboclaw(ABC):
         """
         raise NotImplementedError('Abstract method!')
 
+    @abstractmethod
+    def get_watchdog_stop(self) -> bool:
+        """Gets whether or note the watchdog stop is engaged
+
+        Returns:
+            bool: Whether or not the watchdog stop is engaged
+        """
+        raise NotImplementedError('AbstractMethod')
+
 class RoboclawChainApi(ABC):
     """Allows for extracting individual Roboclaw instances from a chain."""
     

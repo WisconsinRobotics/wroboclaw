@@ -210,6 +210,10 @@ class RoboclawSerialInstance(Roboclaw):
             return self._curr_l > self._curr_lim_l if self._curr_lim_l is not None else None, \
                 self._curr_r > self._curr_lim_r if self._curr_lim_r is not None else None
 
+    def get_watchdog_stop(self) -> bool:
+        with self._state_lock:
+            return self._watchdog_stop_engaged
+
     def _tick(self) -> bool: # TODO serial invocations ignore errors; maybe handle them
         """Updates this Roboclaw's state, taking control of the UART port for the duration.
 
@@ -227,9 +231,6 @@ class RoboclawSerialInstance(Roboclaw):
 
             # write motors
             if self._watchdog.check():
-                if self._watchdog_stop_engaged:
-                    ros_loginfo(f"Receiving messages for WRoboclaw 0x{self._address:02x}, disabling Watchdog stop...")
-                self._watchdog_stop_engaged = False
                 if self._sent_spd_l != self._target_spd_l:
                     if self._sent_spd_r != self._target_spd_r:
                         if self._cmd_mixed_duty.invoke(self._target_spd_l, self._target_spd_r):
@@ -242,8 +243,6 @@ class RoboclawSerialInstance(Roboclaw):
                     if self._cmd_m2_duty.invoke(self._target_spd_r):
                         self._sent_spd_r = self._target_spd_r
             else:
-                if not self._watchdog_stop_engaged:
-                    ros_logwarn(f"Not receiving messages for WRoboclaw with address 0x{self._address:02x}, engaging Watchdog stop...")
                 self._watchdog_stop_engaged = True
                 self._cmd_mixed_duty.invoke(0, 0)
 
