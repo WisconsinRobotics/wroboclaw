@@ -31,6 +31,16 @@ class MockVelCtrl():
             self._current_pos = boundary_clamp(self.pos_clamp, self._current_pos, *self.pos_bounds)
         self._last_update_time = now
 
+    def _set_offset(self, offset: int):
+        """Sets an offset for the current encoder. Intended to be called before the motor starts
+        
+        Parameters
+        ----------
+        offset : int
+            The offset to be set for this encoder
+        """
+        self._current_pos = offset
+
     def set_velocity(self, vel: float):
         """Changes the velocity of the motor.
 

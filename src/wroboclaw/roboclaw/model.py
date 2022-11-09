@@ -114,6 +114,32 @@ class Roboclaw(ABC):
         """
         raise NotImplementedError('Abstract method!')
 
+    @abstractmethod
+    def set_counts_per_rotation(self, counts_per_rotation_l : int = None, counts_per_rotation_r : int = None) -> None:
+        """Sets the counts per rotation for a given encoder
+
+        Parameters
+        ----------
+        counts_per_rotation_l : int
+            Counts per rotation for the left encoder
+        counts_per_rotation_r : int
+            Counts per rotation for the right encoder
+        """
+        raise NotImplementedError('Abstract method!')
+
+    @abstractmethod
+    def set_offset(self, offset_l : int = None, offset_r : int = None) -> None:
+        """Sets the offset for a given encoder
+
+        Parameters
+        ----------
+        offset_l : int
+            The offset for the left encoder
+        offset_r : int
+            The offset for the right encoder
+        """
+        raise NotImplementedError('Abstract method!')
+
 class RoboclawChainApi(ABC):
     """Allows for extracting individual Roboclaw instances from a chain."""
     
