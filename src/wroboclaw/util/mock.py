@@ -41,6 +41,16 @@ class MockVelCtrl():
         """
         self._current_pos = offset
 
+    def _set_counts_per_rotation(self, counts_per_rotation: int):
+        """Sets a value for the counts per rotation for the current encoder. Also intended to be called before the motor starts
+        
+        Parameters
+        ----------
+        counts_per_rotation: int
+            The counts per rotation for this encoder
+        """
+        self.pos_bounds = (0, counts_per_rotation)
+
     def set_velocity(self, vel: float):
         """Changes the velocity of the motor.
 

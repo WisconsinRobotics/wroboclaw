@@ -43,9 +43,9 @@ class RoboclawMock(Roboclaw):
 
     def set_counts_per_rotation(self, counts_per_rotation_l : int = None, counts_per_rotation_r : int = None) -> None:
         if counts_per_rotation_l is not None:
-            self._left = MockVelCtrl((0, counts_per_rotation_l), BoundaryBehaviour.wrap)
+            self._left._set_counts_per_rotation(counts_per_rotation_l)
         if counts_per_rotation_r is not None:
-            self._right = MockVelCtrl((0, counts_per_rotation_r), BoundaryBehaviour.wrap)
+            self._right._set_counts_per_rotation(counts_per_rotation_r)
 
     def set_offset(self, offset_l : int = None, offset_r : int = None) -> None:
         if offset_l is not None:
