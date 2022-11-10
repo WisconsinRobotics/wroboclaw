@@ -113,7 +113,7 @@ class ClawInst:
         self.over_curr_pub_l = rospy.Publisher(f'{self.claw_def.topic}/curr/over_lim/left', Bool, queue_size=10)
         self.over_curr_pub_r = rospy.Publisher(f'{self.claw_def.topic}/curr/over_lim/right', Bool, queue_size=10)
 
-        self._publishing_stop
+        self._publishing_stop = False
 
     def tick(self):
         """Ticks publications for this Roboclaw instance."""
