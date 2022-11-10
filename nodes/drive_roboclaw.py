@@ -135,9 +135,9 @@ class ClawInst:
             self.over_curr_pub_r.publish(Bool(over_curr_lim_r))
 
         """Logging Publication"""
-        if self.claw.get_watchdog_stop():
+        if self.claw.get_watchdog_stop() and not self._publishing_stop:
             self._publishing_stop = True
-            rospy.logwarn_throttle_identical(5, f"Watchdog stop engaged on address 0x{self.claw_def.address:x}")
+            rospy.logwarn(5, f"Watchdog stop engaged on address 0x{self.claw_def.address:x}")
         elif self._publishing_stop:
             self._publishing_stop = False
             rospy.loginfo(f"Watchdog stop disengaged on {self.claw_def.address:x}, driving motors...")
