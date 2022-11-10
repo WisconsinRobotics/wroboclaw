@@ -231,6 +231,7 @@ class RoboclawSerialInstance(Roboclaw):
 
             # write motors
             if self._watchdog.check():
+                self._watchdog_stop_engaged = False
                 if self._sent_spd_l != self._target_spd_l:
                     if self._sent_spd_r != self._target_spd_r:
                         if self._cmd_mixed_duty.invoke(self._target_spd_l, self._target_spd_r):
