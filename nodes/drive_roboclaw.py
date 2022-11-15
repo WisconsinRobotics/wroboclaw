@@ -140,7 +140,7 @@ class ClawInst:
             rospy.logwarn(f"Watchdog stop engaged on address 0x{self.claw_def.address:x}")
         elif not self.claw.get_watchdog_stop() and self._publishing_stop:
             self._publishing_stop = False
-            rospy.loginfo(f"Watchdog stop disengaged on {self.claw_def.address:x}, driving motors...")
+            rospy.loginfo(f"Watchdog stop disengaged on 0x{self.claw_def.address:x}, driving motors...")
 
 def main():
     """A driver node for Roboclaws.
