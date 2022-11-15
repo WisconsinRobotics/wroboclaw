@@ -3,9 +3,6 @@ from struct import Struct
 from threading import Lock, Thread
 from typing import Any, Dict, List, Optional, Tuple
 
-# Use for logging, not for normal ROS comms
-from rospy import logwarn as ros_logwarn, loginfo as ros_loginfo
-
 from ..util.checksum import crc16
 from ..util.watchdog import SimpleWatchdog
 from .model import Roboclaw, RoboclawChain, RoboclawChainApi
