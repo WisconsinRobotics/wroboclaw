@@ -199,10 +199,10 @@ class RoboclawSerialInstance(Roboclaw):
                 self._curr_r > self._curr_lim_r if self._curr_lim_r is not None else None
 
     def set_counts_per_rotation(self, counts_per_rotation_l : int = None, counts_per_rotation_r : int = None) -> None:
-        pass
+        pass #Implementation unneeded because for the real roboclaw, encoder values will be read from hardware
 
     def set_offset(self, offset_l : int = None, offset_r : int = None) -> None:
-        pass
+        pass #Implementation unneeded because for the real roboclaw, encoder values will be read from hardware
 
     def _tick(self) -> bool: # TODO serial invocations ignore errors; maybe handle them
         """Updates this Roboclaw's state, taking control of the UART port for the duration.

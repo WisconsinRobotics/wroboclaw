@@ -9,8 +9,7 @@ from std_msgs.msg import Int16, UInt32, Float32, Bool
 from wroboclaw.msg import Int16Pair
 from wroboclaw.roboclaw import init_roboclaw
 from wroboclaw.roboclaw.model import Roboclaw, RoboclawChainApi
-
-UINT32_MAX = (1 << 32) - 1
+from wroboclaw.roboclaw.mock import UINT32_BOUNDS
 
 class ClawDef:
     """A single Roboclaw definition."""
@@ -57,8 +56,8 @@ class ClawDef:
         self.curr_lim_l = dto.get('current_limit_left', None)
         self.curr_lim_r = dto.get('current_limit_right', None)
 
-        self.counts_per_rotation_l, self.offset_l = (enc_l.get('counts_per_rotation', None), enc_l.get('offset', None)) if enc_l else (UINT32_MAX, 0)
-        self.counts_per_rotation_r, self.offset_r = (enc_r.get('counts_per_rotation', None), enc_r.get('offset', None)) if enc_r else (UINT32_MAX, 0)
+        self.counts_per_rotation_l, self.offset_l = (enc_l.get('counts_per_rotation', None), enc_l.get('offset', None)) if enc_l else (UINT32_BOUNDS[1], 0)
+        self.counts_per_rotation_r, self.offset_r = (enc_r.get('counts_per_rotation', None), enc_r.get('offset', None)) if enc_r else (UINT32_BOUNDS[1], 0)
 
     def init_claw(self, claw_chain: RoboclawChainApi) -> Roboclaw:
         """Initializes a Roboclaw instance as defined by this definition.
@@ -185,7 +184,6 @@ def main():
     timeout = rospy.get_param('~timeout', 0.01)
     mock = rospy.get_param('~mock', False)
     claw_defs_dto = cast(Dict[str, Dict[str, Any]], rospy.get_param('~claws'))
-    print(claw_defs_dto)
 
     # parse out roboclaw definitions
     claw_defs = [ClawDef(name, dto) for name, dto in claw_defs_dto.items()]
