@@ -9,7 +9,7 @@ from std_msgs.msg import Int16, UInt32, Float32, Bool
 from wroboclaw.msg import Int16Pair
 from wroboclaw.roboclaw import init_roboclaw
 from wroboclaw.roboclaw.model import Roboclaw, RoboclawChainApi
-from wroboclaw.roboclaw.mock import UINT32_BOUNDS
+from wroboclaw.util.util import UINT32_BOUNDS
 
 class ClawDef:
     """A single Roboclaw definition."""

@@ -1,5 +1,8 @@
 from enum import Enum
 
+UINT32_BOUNDS = (0, (1 << 32) - 1)
+INT16_MAX = (1 << 15) - 1
+
 class BoundaryBehaviour(Enum):
     """Describes some behaviour for clamping a value to an interval."""
     wrap = 0

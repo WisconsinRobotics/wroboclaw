@@ -2,11 +2,8 @@ from collections import defaultdict
 from typing import DefaultDict, Optional, Tuple
 
 from ..util.mock import MockVelCtrl
-from ..util.util import BoundaryBehaviour
+from ..util.util import BoundaryBehaviour, UINT32_BOUNDS, INT16_MAX
 from .model import Roboclaw, RoboclawChain, RoboclawChainApi        
-
-UINT32_BOUNDS = (0, (1 << 32) - 1)
-INT16_MAX = (1 << 15) - 1
 
 class RoboclawMock(Roboclaw):
     """A mock Roboclaw that uses simulated motors to produce mock data."""
