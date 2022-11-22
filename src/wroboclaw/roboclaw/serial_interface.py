@@ -7,11 +7,14 @@ from ..util.checksum import crc16
 from ..util.watchdog import SimpleWatchdog
 from .model import Roboclaw, RoboclawChain, RoboclawChainApi
 
+
 def param_struct(struct_def: str) -> Struct:
-    return Struct(f'>{struct_def}') # checksum is sent in separate write
+    return Struct(f'>{struct_def}')  # checksum is sent in separate write
+
 
 def res_struct(struct_def: str) -> Struct:
-    return Struct(f'>{struct_def}H') # parse out 16-bit checksum
+    return Struct(f'>{struct_def}H')  # parse out 16-bit checksum
+
 
 STRUCT_HEADER = param_struct('BB')
 STRUCT_CRC16 = param_struct('H')
@@ -22,14 +25,15 @@ STRUCT_INDIV_ENC_CNT = res_struct('Ic')
 STRUCT_MIXED_ENC_CNT = res_struct('II')
 STRUCT_MIXED_CURRENT = res_struct('hh')
 
+
 class SerialCommandHandler:
     """Handles Roboclaw serial packet commands (T -> ()).
-    
+
     See Also
     --------
     SerialRequestHandler : Handles requests (() -> T).
     """
-    
+
     def __init__(self, serial: Serial, address: int, opcode: int, param_struct: Struct):
         """Constructs a new command handler.
 
@@ -70,14 +74,15 @@ class SerialCommandHandler:
         except SerialException:
             return False
 
+
 class SerialRequestHandler:
     """Handles Roboclaw serial packet requests (() -> T).
-    
+
     See Also
     --------
     SerialCommandHandler : Handles commands (T -> ()).
     """
-    
+
     def __init__(self, serial: Serial, address: int, opcode: int, res_struct: Struct):
         """Constructs a new request handler.
 
@@ -116,9 +121,10 @@ class SerialRequestHandler:
         except SerialException:
             return None
 
+
 class RoboclawSerialInstance(Roboclaw):
     """Represents a single Roboclaw on a chain."""
-    
+
     def __init__(self, serial: Serial, address: int):
         """Constructs a single Roboclaw instance.
 
@@ -153,6 +159,9 @@ class RoboclawSerialInstance(Roboclaw):
         self._req_get_mixed_enc = SerialRequestHandler(serial, address, 78, STRUCT_MIXED_ENC_CNT)
         self._req_get_mixed_current = SerialRequestHandler(serial, address, 49, STRUCT_MIXED_CURRENT)
 
+        self._address = address
+        self._watchdog_stop_engaged = False
+
         self._alive = True
         self._state_lock = Lock()
 
@@ -179,11 +188,11 @@ class RoboclawSerialInstance(Roboclaw):
             if spd_r is not None:
                 self._target_spd_r = spd_r
             self._watchdog.feed()
-    
+
     def read_encs(self) -> Tuple[Optional[int], Optional[int]]:
         with self._state_lock:
             return self._enc_l, self._enc_r
-    
+
     def read_currents(self) -> Tuple[Optional[float], Optional[float]]:
         with self._state_lock:
             return self._curr_l, self._curr_r
@@ -198,9 +207,13 @@ class RoboclawSerialInstance(Roboclaw):
             return self._curr_l > self._curr_lim_l if self._curr_lim_l is not None else None, \
                 self._curr_r > self._curr_lim_r if self._curr_lim_r is not None else None
 
+    def get_watchdog_stop(self) -> bool:
+        with self._state_lock:
+            return self._watchdog_stop_engaged
+
     def _tick(self) -> bool: # TODO serial invocations ignore errors; maybe handle them
         """Updates this Roboclaw's state, taking control of the UART port for the duration.
-        
+
         This method should never be called by anything except the Roboclaw comms thread!
 
         Returns
@@ -212,9 +225,10 @@ class RoboclawSerialInstance(Roboclaw):
             if not self._alive:
                 self._cmd_mixed_duty.invoke(0, 0)
                 return False
-            
+
             # write motors
             if self._watchdog.check():
+                self._watchdog_stop_engaged = False
                 if self._sent_spd_l != self._target_spd_l:
                     if self._sent_spd_r != self._target_spd_r:
                         if self._cmd_mixed_duty.invoke(self._target_spd_l, self._target_spd_r):
@@ -227,8 +241,9 @@ class RoboclawSerialInstance(Roboclaw):
                     if self._cmd_m2_duty.invoke(self._target_spd_r):
                         self._sent_spd_r = self._target_spd_r
             else:
+                self._watchdog_stop_engaged = True
                 self._cmd_mixed_duty.invoke(0, 0)
-            
+
             # read encoders
             if self._enc_l_enabled:
                 if self._enc_r_enabled:
@@ -255,14 +270,15 @@ class RoboclawSerialInstance(Roboclaw):
         with self._state_lock:
             self._alive = False
 
+
 class RoboclawSerialApi(RoboclawChainApi):
     """Handles communications with individual Roboclaws in a chain.
-    
+
     As communications on a serial port must not overlap, synchronization between communications for
     multiple Roboclaw instances is managed by the comms thread maintained by this class. At any time,
     at most a single Roboclaw should be able to read/write to the UART port.
     """
-    
+
     def __init__(self, serial: Serial):
         """Constructs a new serial Roboclaw chain API instance.
 
@@ -315,9 +331,10 @@ class RoboclawSerialApi(RoboclawChainApi):
                 self._alive_claws += 1
         return claw
 
+
 class RoboclawChainSerial(RoboclawChain):
     """A Roboclaw chain on a UART serial port."""
-    
+
     def __init__(self, com_port: str, baud: int, timeout: float):
         """Constructs a new Roboclaw chain with the given serial port parameters.
 

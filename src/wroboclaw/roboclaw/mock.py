@@ -41,6 +41,9 @@ class RoboclawMock(Roboclaw):
     def get_over_current_status(self) -> Tuple[Optional[bool], Optional[bool]]:
         return False, False # no current draw in mock motors
 
+    def get_watchdog_stop(self) -> bool:
+        return False # no watchdog, can't be engaged
+
 class RoboclawChainMock(RoboclawChain, RoboclawChainApi):
     """A mock Roboclaw chain that provides simulated Roboclaws."""
     
