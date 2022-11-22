@@ -49,6 +49,9 @@ class RoboclawMock(Roboclaw):
             self._left.set_offset(offset_l)
         if offset_r is not None:
             self._right.set_offset(offset_r)
+            
+    def get_watchdog_stop(self) -> bool:
+        return False # no watchdog, can't be engaged
 
 class RoboclawChainMock(RoboclawChain, RoboclawChainApi):
     """A mock Roboclaw chain that provides simulated Roboclaws."""

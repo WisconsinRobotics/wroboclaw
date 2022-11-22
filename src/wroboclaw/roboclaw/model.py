@@ -115,6 +115,7 @@ class Roboclaw(ABC):
         raise NotImplementedError('Abstract method!')
 
     @abstractmethod
+<<<<<<< HEAD
     def set_counts_per_rotation(self, counts_per_rotation_l : int = None, counts_per_rotation_r : int = None) -> None:
         """Sets the counts per rotation for a given encoder
 
@@ -139,6 +140,15 @@ class Roboclaw(ABC):
             The offset for the right encoder
         """
         raise NotImplementedError('Abstract method!')
+=======
+    def get_watchdog_stop(self) -> bool:
+        """Gets whether or note the watchdog stop is engaged
+
+        Returns:
+            bool: Whether or not the watchdog stop is engaged
+        """
+        raise NotImplementedError('AbstractMethod')
+>>>>>>> cfb3a2593eed0bbf6094eb01b4b08998b69d2f97
 
 class RoboclawChainApi(ABC):
     """Allows for extracting individual Roboclaw instances from a chain."""

@@ -123,6 +123,8 @@ class ClawInst:
         self.over_curr_pub_l = rospy.Publisher(f'{self.claw_def.topic}/curr/over_lim/left', Bool, queue_size=10)
         self.over_curr_pub_r = rospy.Publisher(f'{self.claw_def.topic}/curr/over_lim/right', Bool, queue_size=10)
 
+        self._publishing_stop = False
+
     def tick(self):
         """Ticks publications for this Roboclaw instance."""
         enc_left, enc_right = self.claw.read_encs()
@@ -141,6 +143,14 @@ class ClawInst:
             self.over_curr_pub_l.publish(Bool(over_curr_lim_l))
         if over_curr_lim_r is not None:
             self.over_curr_pub_r.publish(Bool(over_curr_lim_r))
+
+        """Logging Publication"""
+        if self.claw.get_watchdog_stop() and not self._publishing_stop:
+            self._publishing_stop = True
+            rospy.logwarn(f"Watchdog stop engaged on address 0x{self.claw_def.address:x}")
+        elif not self.claw.get_watchdog_stop() and self._publishing_stop:
+            self._publishing_stop = False
+            rospy.loginfo(f"Watchdog stop disengaged on 0x{self.claw_def.address:x}, driving motors...")
 
 def main():
     """A driver node for Roboclaws.
