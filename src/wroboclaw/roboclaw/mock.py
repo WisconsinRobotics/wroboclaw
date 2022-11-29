@@ -2,11 +2,8 @@ from collections import defaultdict
 from typing import DefaultDict, Optional, Tuple
 
 from ..util.mock import MockVelCtrl
-from ..util.util import BoundaryBehaviour
+from ..util.util import BoundaryBehaviour, UINT32_BOUNDS, INT16_MAX
 from .model import Roboclaw, RoboclawChain, RoboclawChainApi        
-
-UINT32_BOUNDS = (0, (1 << 32) - 1)
-INT16_MAX = (1 << 15) - 1
 
 class RoboclawMock(Roboclaw):
     """A mock Roboclaw that uses simulated motors to produce mock data."""
@@ -41,6 +38,18 @@ class RoboclawMock(Roboclaw):
     def get_over_current_status(self) -> Tuple[Optional[bool], Optional[bool]]:
         return False, False # no current draw in mock motors
 
+    def set_counts_per_rotation(self, counts_per_rotation_l : int = None, counts_per_rotation_r : int = None) -> None:
+        if counts_per_rotation_l is not None:
+            self._left.set_counts_per_rotation(counts_per_rotation_l)
+        if counts_per_rotation_r is not None:
+            self._right.set_counts_per_rotation(counts_per_rotation_r)
+
+    def set_offset(self, offset_l : int = None, offset_r : int = None) -> None:
+        if offset_l is not None:
+            self._left.set_offset(offset_l)
+        if offset_r is not None:
+            self._right.set_offset(offset_r)
+            
     def get_watchdog_stop(self) -> bool:
         return False # no watchdog, can't be engaged
 

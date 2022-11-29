@@ -9,6 +9,7 @@ from std_msgs.msg import Int16, UInt32, Float32, Bool
 from wroboclaw.msg import Int16Pair
 from wroboclaw.roboclaw import init_roboclaw
 from wroboclaw.roboclaw.model import Roboclaw, RoboclawChainApi
+from wroboclaw.util.util import UINT32_BOUNDS
 
 class ClawDef:
     """A single Roboclaw definition."""
@@ -55,6 +56,9 @@ class ClawDef:
         self.curr_lim_l = dto.get('current_limit_left', None)
         self.curr_lim_r = dto.get('current_limit_right', None)
 
+        self.counts_per_rotation_l, self.offset_l = (enc_l.get('counts_per_rotation', None), enc_l.get('offset', None)) if enc_l else (UINT32_BOUNDS[1], 0)
+        self.counts_per_rotation_r, self.offset_r = (enc_r.get('counts_per_rotation', None), enc_r.get('offset', None)) if enc_r else (UINT32_BOUNDS[1], 0)
+
     def init_claw(self, claw_chain: RoboclawChainApi) -> Roboclaw:
         """Initializes a Roboclaw instance as defined by this definition.
 
@@ -81,6 +85,12 @@ class ClawDef:
 
         #Set the current limit of the motors
         claw.set_current_limits(self.curr_lim_l, self.curr_lim_r)
+
+        #Set counts per rotation for the encoders
+        claw.set_counts_per_rotation(counts_per_rotation_l = self.counts_per_rotation_l, counts_per_rotation_r = self.counts_per_rotation_r)
+
+        #Set offsets for the encoders
+        claw.set_offset(offset_l = self.offset_l, offset_r = self.offset_r)
 
         return claw
 

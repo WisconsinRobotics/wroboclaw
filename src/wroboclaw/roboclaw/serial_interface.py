@@ -207,6 +207,11 @@ class RoboclawSerialInstance(Roboclaw):
             return self._curr_l > self._curr_lim_l if self._curr_lim_l is not None else None, \
                 self._curr_r > self._curr_lim_r if self._curr_lim_r is not None else None
 
+    def set_counts_per_rotation(self, counts_per_rotation_l : int = None, counts_per_rotation_r : int = None) -> None:
+        pass #Implementation unneeded because for the real roboclaw, encoder values will be read from hardware
+
+    def set_offset(self, offset_l : int = None, offset_r : int = None) -> None:
+        pass #Implementation unneeded because for the real roboclaw, encoder values will be read from hardware
     def get_watchdog_stop(self) -> bool:
         with self._state_lock:
             return self._watchdog_stop_engaged
